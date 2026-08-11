@@ -8,6 +8,6 @@
   "screenshot": "assets/fable-factory-ftw.png",
   "crew": "founders",
   "enteredAt": "2026-08-11",
-  "voteIssue": null,
-  "starsAtEntry": null
+  "voteIssue": 1,
+  "starsAtEntry": 0
 }
