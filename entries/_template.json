@@ -1,0 +1,14 @@
+{
+  "$howto": "Copy this file to entries/<your-kebab-slug>.json — the filename is your entry id. Remove the $howto line. Files starting with _ are ignored.",
+  "project": "Project name",
+  "builder": "your-github-handle",
+  "oneLiner": "What it is and why it's good, in ≤140 characters.",
+  "builtWith": "e.g. Claude Code + Sonnet · Cowork · API agent — say the model and surface",
+  "repo": "https://github.com/you/your-project — optional, but required for the Stars board",
+  "demo": "https://your-live-demo-or-writeup — optional",
+  "screenshot": "assets/<your-slug>.png or a full https URL — optional",
+  "crew": "optional group tag, e.g. founders",
+  "enteredAt": "YYYY-MM-DD — the date of your PR",
+  "voteIssue": null,
+  "starsAtEntry": null
+}

@@ -1,0 +1,62 @@
+name: factory
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * *" # nightly tally, 03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: factory
+  cancel-in-progress: false
+
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tally votes and stars
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/tally.js
+
+      - name: Commit updated standings
+        run: |
+          git config user.name "factory-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ entries/
+          git diff --staged --quiet || git commit -m "🏭 tally: update standings"
+          git push
+
+      - name: Build site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r data _site/data
+          if [ -d assets ]; then cp -r assets _site/assets; fi
+
+      - name: Enable GitHub Pages (first run)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+        continue-on-error: true # if this fails: Settings → Pages → Source: "GitHub Actions" (one-time)
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

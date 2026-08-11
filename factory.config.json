@@ -1,0 +1,9 @@
+{
+  "title": "Fable Factory FTW",
+  "tagline": "Friends build with Claude. The crowd decides.",
+  "cupName": "The Claude Cup",
+  "repo": "markcfa/fable-factory-ftw",
+  "minVoterAccountAgeDays": 30,
+  "countedReactions": ["+1"],
+  "excludeBots": true
+}

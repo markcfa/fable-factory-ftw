@@ -1,0 +1,13 @@
+{
+  "project": "Fable Factory FTW",
+  "builder": "markcfa",
+  "oneLiner": "Zero-backend leaderboard for Claude builders: entries by PR, votes by 👍, tallied nightly by an Action. The scoreboard is entry #001.",
+  "builtWith": "Claude Fable 5 — one Cowork session",
+  "repo": "https://github.com/markcfa/fable-factory-ftw",
+  "demo": "https://markcfa.github.io/fable-factory-ftw/",
+  "screenshot": "assets/fable-factory-ftw.png",
+  "crew": "founders",
+  "enteredAt": "2026-08-11",
+  "voteIssue": null,
+  "starsAtEntry": null
+}

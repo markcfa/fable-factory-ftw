@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fable Factory FTW — the Claude builders' leaderboard</title>
+<meta name="description" content="Friends build with Claude. The crowd decides. Enter by PR, vote with 👍.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏭</text></svg>">
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #21262d; --text: #e6edf3;
+    --muted: #8b949e; --faint: #545d68; --accent: #58a6ff; --gold: #e3b341;
+    --green: #3fb950; --red: #f85149; --purple: #bc8cff; --pink: #f778ba; --chip: #21262d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body { background: var(--bg); color: var(--text);
+    font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- header ---------- */
+  #bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .logo { font-size: 19px; font-weight: 800; letter-spacing: 2px; color: var(--text); white-space: nowrap; }
+  .logo .ftw { color: var(--gold); }
+  .logo .ico { margin-right: 6px; }
+  #tagline { color: var(--muted); font-size: 12.5px; }
+  #bar .right { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #cup { background: rgba(227,179,65,.09); border: 1px solid rgba(227,179,65,.35); color: var(--gold);
+    border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 650; max-width: 420px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn { background: var(--chip); border: 1px solid var(--border); color: var(--muted);
+    border-radius: 7px; padding: 5px 11px; cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .btn:hover { color: var(--text); text-decoration: none; }
+  .btn.primary { color: var(--gold); border-color: rgba(227,179,65,.4); }
+
+  /* ---------- controls ---------- */
+  #controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 20px 2px; }
+  #toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+  #toggle button { background: var(--panel); border: none; color: var(--muted); padding: 7px 16px;
+    font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; letter-spacing: .4px; }
+  #toggle button.on { background: var(--chip); color: var(--gold); }
+  #toggle button + button { border-left: 1px solid var(--border); }
+  #rules { color: var(--faint); font-size: 11.5px; }
+  #tallied { margin-left: auto; color: var(--faint); font-size: 11.5px; }
+
+  /* ---------- board ---------- */
+  #board { padding: 12px 20px 8px; display: flex; flex-direction: column; gap: 10px; max-width: 1400px; }
+  .row { display: flex; align-items: center; gap: 14px; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+  .row.top1 { border-color: rgba(227,179,65,.45); box-shadow: 0 0 0 1px rgba(227,179,65,.15) inset; }
+  .rank { flex: 0 0 52px; text-align: center; font-weight: 800; font-size: 15px; color: var(--faint);
+    font-variant-numeric: tabular-nums; }
+  .rank .medal { font-size: 24px; display: block; line-height: 1.1; }
+  .thumb { flex: 0 0 128px; height: 74px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--chip); object-fit: cover; object-position: top; width: 128px; }
+  .info { flex: 1 1 auto; min-width: 0; }
+  .info .title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .info .title .name { font-size: 15px; font-weight: 750; color: var(--text); }
+  .info .title .name:hover { color: var(--accent); text-decoration: none; }
+  .builder { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 600; }
+  .builder img { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--border); }
+  .one { color: var(--muted); font-size: 12.5px; margin-top: 3px; overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 7px; }
+  .chip { display: inline-block; font-size: 10px; font-weight: 700; border-radius: 6px; padding: 2px 7px;
+    background: var(--chip); border: 1px solid var(--border); color: var(--muted); }
+  .chip.purple { color: var(--purple); } .chip.blue { color: var(--accent); } .chip.gold { color: var(--gold); }
+  .mlink { font-size: 11.5px; color: var(--faint); }
+  .mlink:hover { color: var(--accent); }
+  .score { flex: 0 0 auto; text-align: right; min-width: 92px; }
+  .score .big { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1.1; }
+  .score .big .unit { font-size: 14px; color: var(--faint); font-weight: 700; margin-left: 3px; }
+  .score .sub { color: var(--faint); font-size: 11px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .score .vote-cta { display: inline-block; margin-top: 6px; font-size: 11.5px; font-weight: 700; color: var(--gold);
+    border: 1px solid rgba(227,179,65,.4); border-radius: 7px; padding: 3px 9px; }
+  .score .vote-cta:hover { background: rgba(227,179,65,.09); text-decoration: none; }
+
+  #state { padding: 30px 20px; color: var(--muted); font-size: 13px; }
+  #state .hint { color: var(--faint); font-size: 12px; margin-top: 6px; }
+
+  footer { color: var(--faint); font-size: 11px; padding: 10px 20px 22px; line-height: 1.7; }
+  footer .sep { margin: 0 7px; color: var(--border); }
+
+  @media (max-width: 780px) {
+    .thumb { display: none; }
+    #cup { display: none; }
+    .score { min-width: 74px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <span class="logo"><span class="ico">🏭</span>FABLE FACTORY <span class="ftw">FTW</span></span>
+  <span id="tagline">Friends build with Claude. The crowd decides.</span>
+  <span class="right">
+    <span id="cup" hidden></span>
+    <a class="btn primary" id="enterBtn" href="#">+ Enter your build</a>
+    <a class="btn" id="voteBtn" href="#">🗳️ Vote</a>
+    <a class="btn" id="ghBtn" href="#">GitHub</a>
+  </span>
+</div>
+
+<div id="controls">
+  <span id="toggle">
+    <button id="tabCrowd" class="on">👍 CROWD</button>
+    <button id="tabStars">✨ STARS</button>
+  </span>
+  <span id="rules"></span>
+  <span id="tallied"></span>
+</div>
+
+<div id="board"></div>
+<div id="state" hidden></div>
+
+<footer>
+  <span id="cupLine"></span>
+  <span class="sep">·</span> Crowd = 👍 votes on each entry's issue — the official board, home of the Cup
+  <span class="sep">·</span> Stars = GitHub stars gained since entry (repo-backed entries only)
+  <span class="sep">·</span> <a id="templateLink" href="#">Run your own factory →</a>
+  <span class="sep">·</span> built with Claude — and entry #001 on its own board
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var board = null;
+  var tab = "crowd";
+  var $ = function (id) { return document.getElementById(id); };
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function rel(iso) {
+    if (!iso) return "";
+    var mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (mins < 2) return "just now";
+    if (mins < 90) return mins + " min ago";
+    var h = Math.round(mins / 60);
+    if (h < 36) return h + " h ago";
+    return Math.round(h / 24) + " d ago";
+  }
+  function repoUrl() { return "https://github.com/" + (board ? board.repo : "markcfa/fable-factory-ftw"); }
+  function issueUrl(n) { return repoUrl() + "/issues/" + n; }
+
+  function medal(r) {
+    return r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : null;
+  }
+
+  function rowHtml(e, rank, mode) {
+    var m = medal(rank);
+    var mainLink = e.demo || e.repo || (e.voteIssue ? issueUrl(e.voteIssue) : repoUrl());
+    var shot = e.screenshot
+      ? '<img class="thumb" loading="lazy" src="' + esc(e.screenshot) + '" alt="" onerror="this.remove()">'
+      : '<img class="thumb" loading="lazy" src="https://github.com/' + esc(e.builder) + '.png?size=200" alt="" onerror="this.remove()">';
+    var links = [];
+    if (e.repo) links.push('<a class="mlink" href="' + esc(e.repo) + '">repo</a>');
+    if (e.demo) links.push('<a class="mlink" href="' + esc(e.demo) + '">demo</a>');
+    if (e.voteIssue) links.push('<a class="mlink" href="' + esc(issueUrl(e.voteIssue)) + '">voting issue</a>');
+    var chips = "";
+    if (e.builtWith) chips += '<span class="chip purple">🤖 ' + esc(e.builtWith) + "</span>";
+    if (e.crew) chips += '<span class="chip blue">' + esc(e.crew) + "</span>";
+    if (e.enteredAt) chips += '<span class="chip">since ' + esc(e.enteredAt) + "</span>";
+
+    var big, sub;
+    if (mode === "crowd") {
+      big = e.votes + '<span class="unit">👍</span>';
+      sub = e.starsGained !== null && e.starsGained !== undefined
+        ? "+" + e.starsGained + " ★ since entry" + (e.starsNow != null ? " · " + e.starsNow + " total" : "")
+        : "no repo on Stars board";
+    } else {
+      big = "+" + e.starsGained + '<span class="unit">★</span>';
+      sub = e.votes + " 👍 on Crowd" + (e.starsNow != null ? " · " + e.starsNow + " ★ total" : "");
+    }
+    var cta = e.voteIssue
+      ? '<a class="vote-cta" href="' + esc(issueUrl(e.voteIssue)) + '">Vote 👍</a>'
+      : "";
+
+    return (
+      '<div class="row' + (rank === 1 ? " top1" : "") + '">' +
+        '<span class="rank">' + (m ? '<span class="medal">' + m + "</span>" : "#" + rank) + "</span>" +
+        shot +
+        '<span class="info">' +
+          '<span class="title"><a class="name" href="' + esc(mainLink) + '">' + esc(e.project) + "</a>" +
+            '<a class="builder" href="https://github.com/' + esc(e.builder) + '">' +
+              '<img src="https://github.com/' + esc(e.builder) + '.png?size=40" alt="" onerror="this.remove()">@' + esc(e.builder) + "</a>" +
+          "</span>" +
+          '<div class="one">' + esc(e.oneLiner) + "</div>" +
+          '<div class="meta">' + chips + links.join("") + "</div>" +
+        "</span>" +
+        '<span class="score"><div class="big">' + big + '</div><div class="sub">' + sub + "</div>" + cta + "</span>" +
+      "</div>"
+    );
+  }
+
+  function render() {
+    var el = $("board"), st = $("state");
+    if (!board) return;
+    var list = board.entries.slice();
+    if (tab === "stars") {
+      list = list.filter(function (e) { return e.starsGained !== null && e.starsGained !== undefined; })
+                 .sort(function (a, b) { return (a.starsRank || 999) - (b.starsRank || 999); });
+    } else {
+      list.sort(function (a, b) { return (a.crowdRank || 999) - (b.crowdRank || 999); });
+    }
+    if (!list.length) {
+      el.innerHTML = "";
+      st.hidden = false;
+      st.innerHTML = tab === "stars"
+        ? "No repo-backed entries yet — add a <b>repo</b> URL to your entry to compete on Stars."
+        : 'No entries yet — <a href="' + esc(repoUrl()) + '#enter-your-build">be the first</a>.';
+      return;
+    }
+    st.hidden = true;
+    el.innerHTML = list.map(function (e, i) {
+      return rowHtml(e, tab === "stars" ? (e.starsRank || i + 1) : (e.crowdRank || i + 1), tab);
+    }).join("");
+  }
+
+  function setTab(t) {
+    tab = t;
+    $("tabCrowd").className = t === "crowd" ? "on" : "";
+    $("tabStars").className = t === "stars" ? "on" : "";
+    render();
+  }
+  $("tabCrowd").onclick = function () { setTab("crowd"); };
+  $("tabStars").onclick = function () { setTab("stars"); };
+
+  fetch("data/leaderboard.json?ts=" + Date.now())
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (b) {
+      board = b;
+      var cfg = b.config || {};
+      if (cfg.title) document.title = cfg.title + " — the Claude builders' leaderboard";
+      if (cfg.tagline) $("tagline").textContent = cfg.tagline;
+      $("rules").textContent = "self-votes excluded · voter accounts ≥ " + (cfg.minVoterAccountAgeDays != null ? cfg.minVoterAccountAgeDays : 30) + "d · one 👍 per account";
+      $("tallied").textContent = "tallied " + rel(b.generatedAt);
+      $("enterBtn").href = repoUrl() + "#enter-your-build";
+      $("voteBtn").href = repoUrl() + '/issues?q=is%3Aissue+label%3Avote';
+      $("ghBtn").href = repoUrl();
+      $("templateLink").href = repoUrl() + "/generate";
+      var champ = b.entries.filter(function (e) { return e.crowdRank === 1; })[0];
+      if (champ && champ.votes > 0) {
+        $("cup").hidden = false;
+        $("cup").textContent = "🏆 " + (cfg.cupName || "The Claude Cup") + " — @" + champ.builder + " · " + champ.project + " (" + champ.votes + ")";
+        $("cupLine").textContent = "🏆 " + (cfg.cupName || "The Claude Cup") + " currently held by @" + champ.builder;
+      } else {
+        $("cupLine").textContent = "🏆 " + (cfg.cupName || "The Claude Cup") + " — unclaimed. First votes take it.";
+      }
+      render();
+    })
+    .catch(function () {
+      var st = $("state");
+      st.hidden = false;
+      st.innerHTML = "Standings not generated yet." +
+        '<div class="hint">The factory Action produces <code>data/leaderboard.json</code> on the first push — if you\'re seeing this on a fresh fork, check the Actions tab.</div>';
+      $("enterBtn").href = repoUrl() + "#enter-your-build";
+      $("voteBtn").href = repoUrl() + "/issues";
+      $("ghBtn").href = repoUrl();
+      $("templateLink").href = repoUrl() + "/generate";
+    });
+})();
+</script>
+</body>
+</html>
