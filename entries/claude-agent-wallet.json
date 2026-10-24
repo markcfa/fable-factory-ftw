@@ -1,0 +1,13 @@
+{
+  "project": "Claude + MetaMask Agent Wallet",
+  "builder": "markcfa",
+  "oneLiner": "Claude Code transacts onchain inside wallet-enforced limits: $10/day cap, allowlist, phone approval for the rest. Guide + dashboard script.",
+  "builtWith": "Claude Opus 5.5 in one chat session, with MetaMask's mm CLI and agent skill",
+  "repo": "https://github.com/markcfa/claude-agent-wallet",
+  "demo": null,
+  "screenshot": null,
+  "crew": "founders",
+  "enteredAt": "2026-10-24",
+  "voteIssue": null,
+  "starsAtEntry": null
+}
